@@ -1,2 +1,2 @@
-# sunset_predictor_bot
+# Sunset predictor bot utilizing Sunsethue's API
 Pretty self-explainatory
