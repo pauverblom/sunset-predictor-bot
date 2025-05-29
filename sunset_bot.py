@@ -33,5 +33,6 @@ def main():
         log_message = f"Error checking sunset quality: {str(e)}"
     #    send_telegram_message(f"Sunset bot error: {str(e)}")
 
+print("hola")
 if __name__ == "__main__":
     main()
