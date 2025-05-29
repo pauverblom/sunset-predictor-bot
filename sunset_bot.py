@@ -9,17 +9,31 @@ try:
 except ImportError:
     pass  # dotenv not needed on GitHub Actions
 
+
+GIST_ID = "9924dcb5de9a7fddb03cd2e68e91faaf"
+USERNAME = "pauverblom"
+
+url = f"https://gist.githubusercontent.com/{USERNAME}/{GIST_ID}/raw/location.txt"
+response = requests.get(url)
+
+if response.ok:
+    lat_str, lon_str = response.text.strip().split(",")
+    lat = float(lat_str)
+    lon = float(lon_str)
+    print(f"Location: {lat}, {lon}")
+else:
+    print("Failed to fetch location:", response.status_code)
+    
 # === CONFIG ===
 SUNSETHUE_API_KEY = os.getenv("SUNSETHUE_API_KEY")
-LAT = 63.4305
-LON = 10.3950 # Trondheim, Norway
+
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 def check_sunset():
     today = datetime.utcnow().strftime("%Y-%m-%d")
-    url = f"https://api.sunsethue.com/event?latitude={LAT}&longitude={LON}&date={today}&type=sunset"
+    url = f"https://api.sunsethue.com/event?latitude={lat}&longitude={lon}&date={today}&type=sunset"
     headers = {"x-api-key": SUNSETHUE_API_KEY}
     response = requests.get(url, headers=headers)
     response.raise_for_status()
@@ -59,7 +73,7 @@ def main():
                 f"🌇 Sunset quality is *{quality_text.  upper()}* today, {quality_percentage:.0%}\n"
                 f"🕒 Sunset time: `{sunset_time}`\n"
                 f"☁️ Cloud cover: {cloud_cover_str}\n"
-                f"📍 Location: {LAT}, {LON}"
+                f"📍 Location: {lat}, {lon}"
             )
             send_telegram_message(msg)
     except Exception as e:
