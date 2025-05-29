@@ -11,7 +11,7 @@ except ImportError:
 
 # === CONFIG ===
 SUNSETHUE_API_KEY = os.getenv("SUNSETHUE_API_KEY")
-LAT = 83.4305
+LAT = 63.4305
 LON = 10.3950 # Trondheim, Norway
 
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
