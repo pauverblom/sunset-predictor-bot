@@ -3,7 +3,7 @@ name: Sunset Telegram Bot Run Action
 on:
   workflow_dispatch:     # Optional: allows manual triggering
   schedule:
-    - cron: '0 14 * * *' # Runs daily at 14:00 UTC
+    - cron: '0 12 * * *' # Runs daily at 12:00 UTC
 
 jobs:
   run-bot:
