@@ -197,7 +197,7 @@ def main():
                 f"{golden_hour_line}\n"
                 f"{blue_hour_line}"
             )
-            #send_telegram_message(msg)
+            send_telegram_message(msg)
             print(f"Message to send: {msg}")
     except Exception as e:
         send_telegram_message(f"🚨 Sunset bot error:\n`{str(e)}`")
