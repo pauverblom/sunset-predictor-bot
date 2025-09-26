@@ -1,2 +1,2 @@
 # Sunset predictor bot utilizing Sunsethue's API
-Pretty self-explainatory
+Pretty self-explainatory. Uses Telegram.
