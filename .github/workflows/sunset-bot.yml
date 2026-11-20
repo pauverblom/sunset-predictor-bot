@@ -1,29 +1,65 @@
 name: Sunset Telegram Bot Run Action
 
 on:
-  workflow_dispatch:     # Optional: allows manual triggering
+  workflow_dispatch:     # Manual runs always send a message
   schedule:
-    - cron: '0 12 * * *' # Runs daily at 12:00 UTC
+    # GitHub delays scheduled runs (often by hours) when its queue is busy,
+    # worst at the top of the hour. Use odd minutes, start early, and keep
+    # backup slots; the guard step below makes sure only one message is sent per day.
+    - cron: '37 7 * * *'   # 07:37 UTC
+    - cron: '13 9 * * *'   # 09:13 UTC (backup)
+    - cron: '51 10 * * *'  # 10:51 UTC (backup)
+
+permissions:
+  actions: read    # needed to check whether today's run already happened
+  contents: read
+
+concurrency:
+  group: sunset-bot
+  cancel-in-progress: false
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
 
     steps:
-      - run: echo "Cron job run"
+      - name: Skip if today's message was already sent
+        id: guard
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "${{ github.event_name }}" != "schedule" ]; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          today=$(date -u +%F)
+          done_today=$(gh run list --repo "${{ github.repository }}" \
+            --workflow sunset-bot.yml --event schedule --status success \
+            --created ">=$today" --json databaseId --jq 'length')
+          echo "Successful scheduled runs today: $done_today"
+          if [ "$done_today" -gt 0 ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.guard.outputs.skip != 'true'
 
       - name: Set up Python
+        if: steps.guard.outputs.skip != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install dependencies
+        if: steps.guard.outputs.skip != 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Run sunset bot
+        if: steps.guard.outputs.skip != 'true'
         env:
           SUNSETHUE_API_KEY: ${{ secrets.SUNSETHUE_API_KEY }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
